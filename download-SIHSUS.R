@@ -4,13 +4,12 @@ library(microdatasus)
 sih_rd <- fetch_datasus(
   year_start = 2021,
   month_start = 1,
-  year_end = 2025,
+  year_end = 2026, 
   month_end = 12,
   uf = "SP",
   information_system = "SIH-RD",
-  vars = c("N_AIH", "DT_INTER", "DT_SAIDA", "ANO_CMPT", "MES_CMPT", "DIAG_PRINC", 
-           "MUNIC_MOV", "MUNIC_RES", "NASC", "SEXO", "VAL_TOT", "MORTE", 
-           "RACA_COR"),
+  vars = c("DT_INTER", "DT_SAIDA", "DIAG_PRINC","MUNIC_MOV", "MUNIC_RES",
+           "VAL_TOT", "NASC", "SEXO", "MORTE", "RACA_COR"),
   timeout = 1200
 )
 
@@ -19,4 +18,4 @@ if (!dir.exists("dados_SIH")) {
   dir.create("dados_SIH")
 }
 
-saveRDS(sih_rd, "dados_SIH/dados_sih_sp_2021_2025.rds")
+saveRDS(sih_rd, "dados_SIH/sih_sp_2021_1s2026.rds")
