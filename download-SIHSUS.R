@@ -5,7 +5,7 @@ sih_rd <- fetch_datasus(
   year_start = 2021,
   month_start = 1,
   year_end = 2026, 
-  month_end = 12,
+  month_end = 6,
   uf = "SP",
   information_system = "SIH-RD",
   vars = c("DT_INTER", "DT_SAIDA", "DIAG_PRINC","MUNIC_MOV", "MUNIC_RES",
