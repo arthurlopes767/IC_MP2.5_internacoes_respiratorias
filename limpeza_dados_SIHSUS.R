@@ -1,7 +1,7 @@
 library(microdatasus)
 library(tidyverse)
 
-sih_rd <- readRDS("dados_SIH/dados_sih_sp_2021_1s2026.rds")
+sih_rd <- readRDS("dados_SIH/sih_sp_2021_1s2026.rds")
 sih_proc <- process_sih(sih_rd) #Corrige os formatos dos dados e imputa dados sobre o munícipio de residência
 
 sih_tratado <- sih_proc |> 
@@ -32,7 +32,7 @@ doencas <- c("J41", "J42", "J43", "J44", "J45")
 sih_final <- sih_tratado |> 
   filter(MUNIC_RES %in% municipios) |> 
   filter(substr(DIAG_PRINC, 1, 3) %in% doencas) |>
-  filter(DT_INTER >= "2021-01-01" & DT_INTER <= "2025-12-31")
+  filter(DT_INTER >= "2021-01-01" & DT_INTER <= "2025-12-31") |>
   select(-munResStatus, -munResTipo, -munResUf, -munResLat, -munResLon, 
          -munResAlt, -munResArea)
 
