@@ -1,19 +1,24 @@
 library(tidyverse)
 
-sih_tratado <- readRDS("dados_SIH/sih_tratado_respiratorias.rds")
+sih_tratado <- readRDS("dados_SIH/sih_sp_tratado_respiratorias.rds")
 
-#Divide a base em 3 novas bases de acordo com o município
-sih_campinas <- sih_tratado |>
-  filter(munResNome == "Campinas") |>
-  count(DT_INTER, name = "TOTAL_INTER")
+#Função para separar os pacientes por faixa etária de acordo com a cidade
+inter_idade_cidade <- function(base,nome_municipio){
+  base |>
+    filter(munResNome == nome_municipio) |>
+    group_by(DT_INTER) |>
+    summarise(
+      TOTAL_INTER = n(),
+      INTER_ZERO_A_CINCO_ANOS = sum(IDADE_ANOS <= 5),
+      INTER_MAIOR_IGUAL_SESSENTA_ANOS = sum(IDADE_ANOS >= 60),
+      .groups = "drop"
+    )
+}
 
-sih_limeira <- sih_tratado |>
-  filter(munResNome == "Limeira") |>
-  count(DT_INTER, name = "TOTAL_INTER")
-
-sih_paulinia <- sih_tratado |>
-  filter(munResNome == "Paulínia") |>
-  count(DT_INTER, name = "TOTAL_INTER")
+#Chamada da função para cada município individualmente
+sih_campinas <- inter_idade_cidade(sih_tratado,"Campinas")
+sih_limeira <- inter_idade_cidade(sih_tratado, "Limeira")
+sih_paulinia <- inter_idade_cidade(sih_tratado, "Paulínia")
 
 # Cria um novo repositório com as bases finais salvas
 if (!dir.exists("dados_SIH/Cidades")) {
