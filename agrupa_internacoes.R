@@ -25,6 +25,6 @@ if (!dir.exists("dados_SIH/Cidades")) {
   dir.create("dados_SIH/Cidades")
 }
 
-saveRDS(sih_campinas, "dados_SIH/Cidades/internacoes_Campinas")
-saveRDS(sih_limeira, "dados_SIH/Cidades/internacoes_Limeira")
-saveRDS(sih_paulinia, "dados_SIH/Cidades/internacoes_Paulinia")
+saveRDS(sih_campinas, "dados_SIH/Cidades/internacoes_Campinas.rds")
+saveRDS(sih_limeira, "dados_SIH/Cidades/internacoes_Limeira.rds")
+saveRDS(sih_paulinia, "dados_SIH/Cidades/internacoes_Paulinia.rds")
