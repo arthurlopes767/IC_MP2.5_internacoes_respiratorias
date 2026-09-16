@@ -3,7 +3,7 @@ library(tidyverse)
 sih_tratado <- readRDS("dados_SIH/sih_sp_tratado_respiratorias.rds")
 
 #Função para separar os pacientes por faixa etária de acordo com a cidade
-inter_idade_cidade <- function(base,nome_municipio){
+inter_idade_cidade <- function(base, nome_municipio, data_inicio = "2021-01-01", data_fim = "2025-12-31"){
   base |>
     filter(munResNome == nome_municipio) |>
     group_by(DT_INTER) |>
@@ -12,6 +12,15 @@ inter_idade_cidade <- function(base,nome_municipio){
       INTER_ZERO_A_CINCO_ANOS = sum(IDADE_ANOS <= 5),
       INTER_MAIOR_IGUAL_SESSENTA_ANOS = sum(IDADE_ANOS >= 60),
       .groups = "drop"
+    ) |>
+    
+    complete(
+      DT_INTER = seq.Date(as.Date(data_inicio), as.Date(data_fim), by = "day"),
+      fill = list(
+        TOTAL_INTER = 0,
+        INTER_ZERO_A_CINCO_ANOS = 0,
+        INTER_MAIOR_IGUAL_SESSENTA_ANOS = 0
+      )
     )
 }
 
