@@ -2,8 +2,8 @@ library(qualR)
 library(tidyverse)
 
 #Inserindo credenciais
-meu_usuario <- "arthur.luizlopesaraujo@gmail.com"
-minha_senha <- "arthur07qualar0"
+meu_usuario <- Sys.getenv("QUALAR_USER")
+minha_senha <- Sys.getenv("QUALAR_PASS")
 
 #Instalação do dados do QUALAR de 2021 a 2025
 download_QUALAR <- function(estacao, nome_municipio){
