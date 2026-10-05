@@ -1,8 +1,8 @@
 library(tidyverse)
 
-campinas_qualar <- readRDS("dados_QUALAR/campinas_qualar_processado.rds")
-limeira_qualar <- readRDS("dados_QUALAR/limeira_qualar_processado.rds")
-paulinia_qualar <- readRDS("dados_QUALAR/paulinia_qualar_processado.rds")
+campinas_qualar <- readRDS("dados_QUALAR/campinas_qualar_media.rds")
+limeira_qualar <- readRDS("dados_QUALAR/limeira_qualar_media.rds")
+paulinia_qualar <- readRDS("dados_QUALAR/paulinia_qualar_media.rds")
 
 #Desconsidera a média de dias com menos de 12 horas de monitoramento e os coloca na mesma categoria de dias sem monitoramento (inválidos)
 remove_dias_menos_12h <- function(data){
