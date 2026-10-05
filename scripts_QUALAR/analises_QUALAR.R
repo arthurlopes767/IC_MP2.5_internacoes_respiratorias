@@ -1,8 +1,8 @@
 library(tidyverse)
 
-campinas_qualar <- readRDS("dados_QUALAR/campinas_qualar_processado.rds")
-limeira_qualar <- readRDS("dados_QUALAR/limeira_qualar_processado.rds")
-paulinia_qualar <- readRDS("dados_QUALAR/paulinia_qualar_processado.rds")
+campinas_qualar <- readRDS("dados_QUALAR/campinas_qualar_media.rds")
+limeira_qualar <- readRDS("dados_QUALAR/limeira_qualar_media.rds")
+paulinia_qualar <- readRDS("dados_QUALAR/paulinia_qualar_media.rds")
 
 
 #Contagem de dias com ao menos 17 horas de monitoramento, entre 16 e 12 horas de monitoramento e menos de 12 horas
@@ -36,7 +36,8 @@ contagem_de_dias_validos(paulinia_qualar)
 
 #Gráficos
 #Campinas
-campinas_geral <- ggplot(campinas_qualar, aes(x = DATA, y = HORAS_MONIT_MP25)) +
+campinas_geral <- ggplot(campinas_qualar, aes(x = DATA, y = MEDIA_MP25)) +
+  geom_line()
   geom_col(fill = "darkblue", width = 1) +
   geom_hline(yintercept = 17, linewidth = 1, color = "red")+
   scale_x_date(
