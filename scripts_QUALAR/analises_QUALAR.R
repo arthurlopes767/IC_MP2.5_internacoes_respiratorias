@@ -18,7 +18,7 @@ contagem_de_dias_validos <- function(dados){
   print(paste("Dias com monitoramento entre 12 e 16 horas:", quantidade_analise))
   
   dados_excluidos <- dados |>
-    filter(dados$HORAS_MONIT_MP25 < 12)
+    filter(HORAS_MONIT_MP25 < 12)
   quantidade_excluidos <- nrow(dados_excluidos)
   print(paste("Dias com monitoramento menor que 12 horas (excluídos):", quantidade_excluidos))
   
@@ -34,10 +34,9 @@ contagem_de_dias_validos(limeira_qualar)
 print("PAULINÍA")
 contagem_de_dias_validos(paulinia_qualar)
 
-#Gráficos
+#Gráficos de Colunas (x = Data, y = Horas de Monitoramento de MP2,5)
 #Campinas
-campinas_geral <- ggplot(campinas_qualar, aes(x = DATA, y = MEDIA_MP25)) +
-  geom_line()
+campinas_geral <- ggplot(campinas_qualar, aes(x = DATA, y = HORAS_MONIT_MP25)) +
   geom_col(fill = "darkblue", width = 1) +
   geom_hline(yintercept = 17, linewidth = 1, color = "red")+
   scale_x_date(
@@ -193,3 +192,66 @@ paulinia_analise_12 <- ggplot(paulinia_qualar, aes(
     plot.title = element_text(hjust = 0.5),
     legend.position = "bottom" 
   )
+
+
+#Gráficos de Séries Temporais (x = Data, y = Média diária de monitoramento de MP2,5)
+campinas_st <- ggplot(campinas_qualar, aes(x = DATA, y = MEDIA_MP25))+
+  geom_line(color = "darkblue") +
+  scale_x_date(
+    breaks = seq(as.Date("2021-01-01"), as.Date("2025-12-31"), by = "1 month"),
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 90), breaks = seq(0, 90, by = 10),
+    expand = c(0,0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  labs(
+    x = "",
+    y = "",
+    title = "Média Diária de Material Particulado 2,5 (µg/m³) em Campinas (2021 - 2025)"
+  )
+
+limeira_st <- ggplot(limeira_qualar, aes(x = DATA, y = MEDIA_MP25))+
+  geom_line(color = "darkblue") +
+  scale_x_date(
+    breaks = seq(as.Date("2021-01-01"), as.Date("2025-12-31"), by = "1 month"),
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 90), breaks = seq(0, 90, by = 10),
+    expand = c(0,0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  labs(
+    x = "",
+    y = "",
+    title = "Média Diária de Material Particulado 2,5 (µg/m³) em Limeira (2021 - 2025)"
+  )
+
+paulinia_st <- ggplot(paulinia_qualar, aes(x = DATA, y = MEDIA_MP25))+
+  geom_line(color = "darkblue") +
+  scale_x_date(
+    breaks = seq(as.Date("2021-01-01"), as.Date("2025-12-31"), by = "1 month"),
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 90), breaks = seq(0, 90, by = 10),
+    expand = c(0,0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  labs(
+    x = "",
+    y = "",
+    title = "Média Diária de Material Particulado 2,5 (µg/m³) em Paulínia (2021 - 2025)"
+  )
+  
