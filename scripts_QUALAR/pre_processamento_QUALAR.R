@@ -83,3 +83,42 @@ paulinia_st17 <- ggplot(paulinia_rem_17, aes(x = DATA, y = MEDIA_MP25))+
     title = "Média Diária de Material Particulado 2,5 (µg/m³) em Paulínia (2021 - 2025)",
     subtitle = "Desconsiderando dias com menos de 17 horas de monitoramento"
   )
+
+#Ranking das 3 maiores lacunas de dias sem monitoramento
+ranking_lacunas <- function(data){
+  tam_lacuna <- 0
+  todas_lacunas <- c()
+  
+  for(i in 1:nrow(data)){
+    if(is.na(data$MEDIA_MP25[i])){
+      tam_lacuna <- tam_lacuna + 1
+    }else{
+      if(tam_lacuna > 0){ #Evita que dias com contagem (tam_lacuna = 0) entrem no vetor
+        todas_lacunas <- c(todas_lacunas, tam_lacuna)
+        tam_lacuna <- 0
+      }
+    }
+  }
+  
+  if(tam_lacuna > 0){
+    todas_lacunas <- c(todas_lacunas, tam_lacuna)
+  }
+  
+  top3 <- sort(todas_lacunas, decreasing = TRUE)[1:3]
+  
+  print(paste("1ª lacuna de maior tamanho:", top3[1]))
+  print(paste("2ª lacuna de maior tamanho:", top3[2]))
+  print(paste("3ª lacuna de maior tamanho:", top3[3]))
+  
+  cat("\n")
+}
+
+print("CAMPINAS")
+ranking_lacunas(campinas_rem_17)
+
+print("LIMEIRA")
+ranking_lacunas(limeira_rem_17)
+
+print("PAULÍNIA")
+ranking_lacunas(paulinia_rem_17)
+
