@@ -87,28 +87,55 @@ paulinia_st17 <- ggplot(paulinia_rem_17, aes(x = DATA, y = MEDIA_MP25))+
 #Ranking das 3 maiores lacunas de dias sem monitoramento
 ranking_lacunas <- function(data){
   tam_lacuna <- 0
-  todas_lacunas <- c()
+  data_inicio <- NA
+  
+  historico_lacunas <- data.frame(
+    tamanho = numeric(),
+    inicio = as.Date(character()),
+    fim = as.Date(character())
+  )
   
   for(i in 1:nrow(data)){
     if(is.na(data$MEDIA_MP25[i])){
+      if(tam_lacuna == 0){
+        data_inicio <- data$DATA[i]
+      }
       tam_lacuna <- tam_lacuna + 1
     }else{
-      if(tam_lacuna > 0){ #Evita que dias com contagem (tam_lacuna = 0) entrem no vetor
-        todas_lacunas <- c(todas_lacunas, tam_lacuna)
+      #Se o dia for válido, mas existir uma lacuna aberta, quer dizer que o dia anterior a ele é o dia final de uma lacuna
+      if(tam_lacuna > 0){ 
+        data_fim <- data$DATA[i-1]
+        nova_linha <- data.frame(
+          tamanho = tam_lacuna, 
+          inicio = data_inicio,
+          fim = data_fim
+        )
+        historico_lacunas <- rbind(historico_lacunas, nova_linha)
         tam_lacuna <- 0
       }
     }
   }
   
+  #Garante o salvamento se a base terminar no meio de uma lacuna
   if(tam_lacuna > 0){
-    todas_lacunas <- c(todas_lacunas, tam_lacuna)
+    data_fim <- data$DATA[nrow(data)]
+    nova_linha <- data.frame(
+      tamanho = tam_lacuna,
+      inicio = data_inicio,
+      fim = data_fim
+    )
+    historico_lacunas <- rbind(historico_lacunas, nova_linha)
   }
   
-  top3 <- sort(todas_lacunas, decreasing = TRUE)[1:3]
+  historico_lacunas <- historico_lacunas[order(-historico_lacunas$tamanho),]
   
-  print(paste("1ª lacuna de maior tamanho:", top3[1]))
-  print(paste("2ª lacuna de maior tamanho:", top3[2]))
-  print(paste("3ª lacuna de maior tamanho:", top3[3]))
+  for(posicao in 1:3){
+    tam <- historico_lacunas$tamanho[posicao]
+    data_ini <- format(historico_lacunas$inicio[posicao], "%d/%m/%Y")
+    data_f <- format(historico_lacunas$fim[posicao], "%d/%m/%Y")
+    
+    print(paste(posicao, "lacuna: ", tam, "dias ", data_ini, data_f))
+  }
   
   cat("\n")
 }
@@ -122,3 +149,213 @@ ranking_lacunas(limeira_rem_17)
 print("PAULÍNIA")
 ranking_lacunas(paulinia_rem_17)
 
+#Gráficos das 3 maiores lacunas de cada cidade
+#Campinas
+camp_1 <- campinas_rem_17 |>
+  filter(DATA >= "2022-01-01" & DATA <= "2022-05-31") |> 
+  
+  ggplot(aes(x = DATA, y = MEDIA_MP25)) +
+  geom_line(color = "darkblue") +
+  scale_x_date(
+    date_breaks = "1 month", 
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 90), breaks = seq(0, 90, by = 10),
+    expand = c(0,0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  labs(
+    x = "",
+    y = "",
+    title = "1ª maior lacuna de Campinas"
+  )
+
+camp_2 <- campinas_rem_17 |>
+  filter(DATA >= "2021-06-01" & DATA <= "2021-11-30") |> 
+  
+  ggplot(aes(x = DATA, y = MEDIA_MP25)) +
+  geom_line(color = "darkblue") +
+  scale_x_date(
+    date_breaks = "1 month", 
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 90), breaks = seq(0, 90, by = 10),
+    expand = c(0,0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  labs(
+    x = "",
+    y = "",
+    title = "2ª maior lacuna de Campinas"
+  )
+
+camp_3 <- campinas_rem_17 |>
+  filter(DATA >= "2025-07-01" & DATA <= "2025-12-31") |> 
+  
+  ggplot(aes(x = DATA, y = MEDIA_MP25)) +
+  geom_line(color = "darkblue") +
+  scale_x_date(
+    date_breaks = "1 month", 
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 90), breaks = seq(0, 90, by = 10),
+    expand = c(0,0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  labs(
+    x = "",
+    y = "",
+    title = "3ª maior lacuna de Campinas"
+  )
+
+#Limeira
+lim_1 <- limeira_rem_17 |>
+  filter(DATA >= "2022-10-01" & DATA <= "2023-03-31") |> 
+  
+  ggplot(aes(x = DATA, y = MEDIA_MP25)) +
+  geom_line(color = "darkblue") +
+  scale_x_date(
+    date_breaks = "1 month", 
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 90), breaks = seq(0, 90, by = 10),
+    expand = c(0,0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  labs(
+    x = "",
+    y = "",
+    title = "1ª maior lacuna de Limeira"
+  )
+
+lim_2 <- limeira_rem_17 |>
+  filter(DATA >= "2022-06-01" & DATA <= "2022-11-30") |> 
+  
+  ggplot(aes(x = DATA, y = MEDIA_MP25)) +
+  geom_line(color = "darkblue") +
+  scale_x_date(
+    date_breaks = "1 month", 
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 90), breaks = seq(0, 90, by = 10),
+    expand = c(0,0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  labs(
+    x = "",
+    y = "",
+    title = "2ª maior lacuna de Limeira"
+  )
+
+lim_3 <- limeira_rem_17 |>
+  filter(DATA >= "2021-06-01" & DATA <= "2021-11-30") |> 
+  
+  ggplot(aes(x = DATA, y = MEDIA_MP25)) +
+  geom_line(color = "darkblue") +
+  scale_x_date(
+    date_breaks = "1 month", 
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 90), breaks = seq(0, 90, by = 10),
+    expand = c(0,0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  labs(
+    x = "",
+    y = "",
+    title = "3ª maior lacuna de Limeira"
+  )
+
+#Paulínia
+paul_1 <- paulinia_rem_17 |>
+  filter(DATA >= "2021-08-01" & DATA <= "2022-02-28") |> 
+  
+  ggplot(aes(x = DATA, y = MEDIA_MP25)) +
+  geom_line(color = "darkblue") +
+  scale_x_date(
+    date_breaks = "1 month", 
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 90), breaks = seq(0, 90, by = 10),
+    expand = c(0,0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  labs(
+    x = "",
+    y = "",
+    title = "1ª maior lacuna de Paulínia"
+  )
+
+paul_2 <- paulinia_rem_17 |>
+  filter(DATA >= "2022-06-01" & DATA <= "2022-11-30") |> 
+  
+  ggplot(aes(x = DATA, y = MEDIA_MP25)) +
+  geom_line(color = "darkblue") +
+  scale_x_date(
+    date_breaks = "1 month", 
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 90), breaks = seq(0, 90, by = 10),
+    expand = c(0,0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  labs(
+    x = "",
+    y = "",
+    title = "2ª maior lacuna de Paulínia"
+  )
+
+paul_3 <- paulinia_rem_17 |>
+  filter(DATA >= "2023-01-01" & DATA <= "2023-06-30") |> 
+  
+  ggplot(aes(x = DATA, y = MEDIA_MP25)) +
+  geom_line(color = "darkblue") +
+  scale_x_date(
+    date_breaks = "1 month", 
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 90), breaks = seq(0, 90, by = 10),
+    expand = c(0,0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  labs(
+    x = "",
+    y = "",
+    title = "3ª maior lacuna de Paulínia"
+  )
