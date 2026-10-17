@@ -4,6 +4,7 @@ campinas_qualar <- readRDS("dados_QUALAR/campinas_qualar_media.rds")
 limeira_qualar <- readRDS("dados_QUALAR/limeira_qualar_media.rds")
 paulinia_qualar <- readRDS("dados_QUALAR/paulinia_qualar_media.rds")
 
+
 #Desconsidera a média de dias com menos de 17 horas de monitoramento e os coloca na mesma categoria de dias sem monitoramento (inválidos)
 remove_dias_menos_17h <- function(data){
   data |>
@@ -16,6 +17,10 @@ remove_dias_menos_17h <- function(data){
 campinas_rem_17 <- remove_dias_menos_17h(campinas_qualar) 
 limeira_rem_17 <- remove_dias_menos_17h(limeira_qualar)
 paulinia_rem_17 <- remove_dias_menos_17h(paulinia_qualar)
+
+saveRDS(campinas_rem_17, "dados_QUALAR/dados_processados/campinas_rem_17.rds")
+saveRDS(limeira_rem_17, "dados_QUALAR/dados_processados/limeira_rem_17.rds")
+saveRDS(paulinia_rem_17, "dados_QUALAR/dados_processados/paulinia_rem_17.rds")
 
 #Séries temporais após remover dias com menos de 17 horas de monitoramento
 campinas_st17 <- ggplot(campinas_rem_17, aes(x = DATA, y = MEDIA_MP25))+
@@ -84,6 +89,7 @@ paulinia_st17 <- ggplot(paulinia_rem_17, aes(x = DATA, y = MEDIA_MP25))+
     subtitle = "Desconsiderando dias com menos de 17 horas de monitoramento"
   )
 
+
 #Ranking das 3 maiores lacunas de dias sem monitoramento
 ranking_lacunas <- function(data){
   tam_lacuna <- 0
@@ -148,6 +154,7 @@ ranking_lacunas(limeira_rem_17)
 
 print("PAULÍNIA")
 ranking_lacunas(paulinia_rem_17)
+
 
 #Gráficos das 3 maiores lacunas de cada cidade
 #Campinas
@@ -358,4 +365,289 @@ paul_3 <- paulinia_rem_17 |>
     x = "",
     y = "",
     title = "3ª maior lacuna de Paulínia"
+  )
+
+
+#Imputação de dados
+#kNN
+library(VIM)
+
+if (!dir.exists("dados_QUALAR/dados_processados/kNN")){
+  dir.create("dados_QUALAR/dados_processados/kNN")
+}
+
+imputa_MP25_kNN <- function(base){
+  datas_originais <- base$DATA #Guarda as datas no formato original
+  horas_mp25 <- base$HORAS_MONIT_MP25 #Remove quantidade de horas monitoradas
+  horas_temp <- base$HORAS_MONIT_TEMP
+  horas_umid <- base$HORAS_MONIT_UMIDADE
+  
+  #Converte os dias e meses para um formato que pode ser entendido pelo algoritmo kNN
+  base$MES <- as.factor(format(base$DATA, "%m"))
+  base$DIA_SEMANA <- as.factor(format(base$DATA, "%u"))
+  
+  base$DATA <- NULL #Remove a data no padrão AAAA/MM/DD e horas monitoradas
+  base$HORAS_MONIT_MP25 <- NULL
+  base$HORAS_MONIT_TEMP <- NULL
+  base$HORAS_MONIT_UMIDADE <- NULL
+  
+  base_imputada <- kNN(
+    data = base, 
+    variable = "MEDIA_MP25",
+    k = 10,
+    imp_var = TRUE,
+    imp_suffix = "imp"
+  )
+  
+  base_imputada$DATA <- datas_originais
+  base_imputada$HORAS_MONIT_MP25 <- horas_mp25
+  base_imputada$HORAS_MONIT_TEMP <- horas_temp
+  base_imputada$HORAS_MONIT_UMIDADE <- horas_umid
+  
+  base_imputada <- base_imputada |>
+    select(-MES, -DIA_SEMANA)|>
+    relocate(DATA, MEDIA_MP25, MEDIA_TEMP, MEDIA_UMIDADE, HORAS_MONIT_MP25, HORAS_MONIT_TEMP, HORAS_MONIT_UMIDADE, MEDIA_MP25_imp)
+  
+  return(as_tibble(base_imputada))
+}
+
+knn_campinas <- imputa_MP25_kNN(campinas_rem_17)
+knn_limeira <- imputa_MP25_kNN(limeira_rem_17)
+knn_paulinia <- imputa_MP25_kNN(paulinia_rem_17)
+
+saveRDS(knn_campinas, "dados_QUALAR/dados_processados/kNN/knn_campinas.rds")
+saveRDS(knn_limeira, "dados_QUALAR/dados_processados/kNN/knn_limeira.rds")
+saveRDS(knn_paulinia, "dados_QUALAR/dados_processados/kNN/knn_paulinia.rds")
+
+graf_knn_camp <- ggplot(knn_campinas, aes(x = DATA, y = MEDIA_MP25)) +
+  geom_line(aes(color = MEDIA_MP25_imp, group = 1), linewidth = 0.6) +
+  scale_color_manual(
+    name = "Tipo de Dado",
+    values = c("FALSE" = "#1f77b4", "TRUE" = "#d62728"), 
+    labels = c("Observado", "Imputado")
+  ) +
+  scale_x_date(
+    breaks = seq(as.Date("2021-01-01"), as.Date("2025-12-31"), by = "1 month"),
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 90), breaks = seq(0, 90, by = 10),
+    expand = c(0,0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5),      
+    plot.subtitle = element_text(hjust = 0.5),   
+    legend.position = "bottom",
+    legend.direction = "horizontal"
+  ) +
+  labs(
+    title = "Série Temporal de MP2,5 com dados imputados - Campinas",
+    subtitle = "Imputação realizada por kNN",
+    x = "",
+    y = ""
+  )
+
+graf_knn_lim <- ggplot(knn_limeira, aes(x = DATA, y = MEDIA_MP25)) +
+  geom_line(aes(color = MEDIA_MP25_imp, group = 1), linewidth = 0.6) +
+  scale_color_manual(
+    name = "Tipo de Dado",
+    values = c("FALSE" = "#1f77b4", "TRUE" = "#d62728"), 
+    labels = c("Observado", "Imputado")
+  ) +
+  scale_x_date(
+    breaks = seq(as.Date("2021-01-01"), as.Date("2025-12-31"), by = "1 month"),
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 90), breaks = seq(0, 90, by = 10),
+    expand = c(0,0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5),      
+    plot.subtitle = element_text(hjust = 0.5),   
+    legend.position = "bottom",
+    legend.direction = "horizontal"
+  ) +
+  labs(
+    title = "Série Temporal de MP2,5 com dados imputados - Limeira",
+    subtitle = "Imputação realizada por kNN",
+    x = "",
+    y = ""
+  )
+
+graf_knn_pau <- ggplot(knn_paulinia, aes(x = DATA, y = MEDIA_MP25)) +
+  geom_line(aes(color = MEDIA_MP25_imp, group = 1), linewidth = 0.6) +
+  scale_color_manual(
+    name = "Tipo de Dado",
+    values = c("FALSE" = "#1f77b4", "TRUE" = "#d62728"), 
+    labels = c("Observado", "Imputado")
+  ) +
+  scale_x_date(
+    breaks = seq(as.Date("2021-01-01"), as.Date("2025-12-31"), by = "1 month"),
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 90), breaks = seq(0, 90, by = 10),
+    expand = c(0,0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5),      
+    plot.subtitle = element_text(hjust = 0.5),   
+    legend.position = "bottom",
+    legend.direction = "horizontal"
+  ) +
+  labs(
+    title = "Série Temporal de MP2,5 com dados imputados - Paulínia",
+    subtitle = "Imputação realizada por kNN",
+    x = "",
+    y = ""
+  )
+
+#missForest
+library(missForest)
+
+if (!dir.exists("dados_QUALAR/dados_processados/missForest")){
+  dir.create("dados_QUALAR/dados_processados/missForest")
+}
+
+imputa_MP25_mf <- function(base){
+  datas_originais <- base$DATA #Guarda a data original
+  horas_mp25 <- base$HORAS_MONIT_MP25
+  horas_temp <- base$HORAS_MONIT_TEMP
+  horas_umid <- base$HORAS_MONIT_UMIDADE
+  
+  base$MES <- as.factor(format(base$DATA, "%m"))
+  base$DIA_SEMANA <- as.factor(format(base$DATA, "%u"))
+  
+  base$DATA <- NULL
+  base$HORAS_MONIT_MP25 <- NULL
+  base$HORAS_MONIT_TEMP <- NULL
+  base$HORAS_MONIT_UMIDADE <- NULL
+  
+  base <- as.data.frame(base)
+  
+  resultado_mf <- missForest(
+    xmis = base,
+    maxiter = 10, 
+    ntree = 100, 
+    variablewise = TRUE,#Retorna o erro de imputação
+    verbose = TRUE #Mostra na tela o acompanhamento
+  )
+  
+  #Coluna indicando se houve imputação (TRUE) ou não (FALSE)
+  base$MEDIA_MP25_imp <- is.na(base$MEDIA_MP25)  
+  
+  #Pega apenas os dados imputados de média do MP2,5
+  base$MEDIA_MP25 <- resultado_mf$ximp$MEDIA_MP25
+  
+  base$DATA <- datas_originais #Restaura a data para o formato original
+  base$HORAS_MONIT_MP25 <- horas_mp25
+  base$HORAS_MONIT_TEMP <- horas_temp
+  base$HORAS_MONIT_UMIDADE <- horas_umid
+  
+  print(resultado_mf$OOBerror)
+  
+  base <- base|>
+    select(-MES, -DIA_SEMANA)|>
+    relocate(DATA, MEDIA_MP25, MEDIA_TEMP, MEDIA_UMIDADE, HORAS_MONIT_MP25, HORAS_MONIT_TEMP, HORAS_MONIT_UMIDADE, MEDIA_MP25_imp)
+  
+  return(as_tibble(base))
+}
+
+mf_campinas <- imputa_MP25_mf(campinas_rem_17)
+mf_limeira <- imputa_MP25_mf(limeira_rem_17)
+mf_paulinia <- imputa_MP25_mf(paulinia_rem_17)
+
+saveRDS(mf_campinas, "dados_QUALAR/dados_processados/missForest/mf_campinas.rds")
+saveRDS(mf_limeira, "dados_QUALAR/dados_processados/missForest/mf_limeira.rds")
+saveRDS(mf_paulinia, "dados_QUALAR/dados_processados/missForest/mf_paulinia.rds")
+
+graf_mf_camp <- ggplot(mf_campinas, aes(x = DATA, y = MEDIA_MP25)) +
+  geom_line(aes(color = MEDIA_MP25_imp, group = 1), linewidth = 0.6) +
+  scale_color_manual(
+    name = "Tipo de Dado",
+    values = c("FALSE" = "#1f77b4", "TRUE" = "#d62728"), 
+    labels = c("Observado", "Imputado")
+  ) +
+  scale_x_date(
+    breaks = seq(as.Date("2021-01-01"), as.Date("2025-12-31"), by = "1 month"),
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 90), breaks = seq(0, 90, by = 10),
+    expand = c(0,0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5),      
+    plot.subtitle = element_text(hjust = 0.5),   
+    legend.position = "bottom",
+    legend.direction = "horizontal"
+  ) +
+  labs(
+    title = "Série Temporal de MP2,5 com dados imputados - Campinas",
+    subtitle = "Imputação realizada por missForest",
+    x = "",
+    y = ""
+  )
+
+graf_mf_lim <- ggplot(mf_limeira, aes(x = DATA, y = MEDIA_MP25)) +
+  geom_line(aes(color = MEDIA_MP25_imp, group = 1), linewidth = 0.6) +
+  scale_color_manual(
+    name = "Tipo de Dado",
+    values = c("FALSE" = "#1f77b4", "TRUE" = "#d62728"), 
+    labels = c("Observado", "Imputado")
+  ) +
+  scale_x_date(
+    breaks = seq(as.Date("2021-01-01"), as.Date("2025-12-31"), by = "1 month"),
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 90), breaks = seq(0, 90, by = 10),
+    expand = c(0,0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5),      
+    plot.subtitle = element_text(hjust = 0.5),   
+    legend.position = "bottom",
+    legend.direction = "horizontal"
+  ) +
+  labs(
+    title = "Série Temporal de MP2,5 com dados imputados - Limeira",
+    subtitle = "Imputação realizada por missForest",
+    x = "",
+    y = ""
+  )
+
+graf_mf_pau <- ggplot(mf_paulinia, aes(x = DATA, y = MEDIA_MP25)) +
+  geom_line(aes(color = MEDIA_MP25_imp, group = 1), linewidth = 0.6) +
+  scale_color_manual(
+    name = "Tipo de Dado",
+    values = c("FALSE" = "#1f77b4", "TRUE" = "#d62728"), 
+    labels = c("Observado", "Imputado")
+  ) +
+  scale_x_date(
+    breaks = seq(as.Date("2021-01-01"), as.Date("2025-12-31"), by = "1 month"),
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 90), breaks = seq(0, 90, by = 10),
+    expand = c(0,0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5),      
+    plot.subtitle = element_text(hjust = 0.5),   
+    legend.position = "bottom",
+    legend.direction = "horizontal"
+  ) +
+  labs(
+    title = "Série Temporal de MP2,5 com dados imputados - Paulínia",
+    subtitle = "Imputação realizada por missForest",
+    x = "",
+    y = ""
   )
