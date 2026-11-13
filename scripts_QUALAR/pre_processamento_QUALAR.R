@@ -569,6 +569,7 @@ saveRDS(mf_campinas, "dados_QUALAR/dados_processados/missForest/mf_campinas.rds"
 saveRDS(mf_limeira, "dados_QUALAR/dados_processados/missForest/mf_limeira.rds")
 saveRDS(mf_paulinia, "dados_QUALAR/dados_processados/missForest/mf_paulinia.rds")
 
+#Gráficos MP2,5
 graf_mf_camp <- ggplot(mf_campinas, aes(x = DATA, y = MEDIA_MP25)) +
   geom_line(aes(color = MEDIA_MP25_imp, group = 1), linewidth = 0.6) +
   scale_color_manual(
@@ -655,3 +656,256 @@ graf_mf_pau <- ggplot(mf_paulinia, aes(x = DATA, y = MEDIA_MP25)) +
     x = "",
     y = ""
   )
+
+#Gráficos Temperatura
+graf_mf_camp_temp <- ggplot(mf_campinas, aes(x = DATA, y = MEDIA_TEMP)) +
+  geom_line(aes(color = MEDIA_TEMP_imp, group = 1), linewidth = 0.6) +
+  scale_color_manual(
+    name = "Tipo de Dado",
+    values = c("FALSE" = "#1f77b4", "TRUE" = "#d62728"), 
+    labels = c("Observado", "Imputado")
+  ) +
+  scale_x_date(
+    breaks = seq(as.Date("2021-01-01"), as.Date("2025-12-31"), by = "1 month"),
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 45), breaks = seq(0, 45, by = 5), 
+    expand = c(0,0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5),      
+    plot.subtitle = element_text(hjust = 0.5),   
+    legend.position = "bottom",
+    legend.direction = "horizontal"
+  ) +
+  labs(
+    title = "Série Temporal de Temperatura com dados imputados - Campinas",
+    subtitle = "Imputação realizada por missForest",
+    x = "",
+    y = "Temperatura (°C)" 
+  )
+
+graf_mf_lim_temp <- ggplot(mf_limeira, aes(x = DATA, y = MEDIA_TEMP)) +
+  geom_line(aes(color = MEDIA_TEMP_imp, group = 1), linewidth = 0.6) +
+  scale_color_manual(
+    name = "Tipo de Dado",
+    values = c("FALSE" = "#1f77b4", "TRUE" = "#d62728"), 
+    labels = c("Observado", "Imputado")
+  ) +
+  scale_x_date(
+    breaks = seq(as.Date("2021-01-01"), as.Date("2025-12-31"), by = "1 month"),
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 45), breaks = seq(0, 45, by = 5), 
+    expand = c(0,0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5),      
+    plot.subtitle = element_text(hjust = 0.5),   
+    legend.position = "bottom",
+    legend.direction = "horizontal"
+  ) +
+  labs(
+    title = "Série Temporal de Temperatura com dados imputados - Limeira",
+    subtitle = "Imputação realizada por missForest",
+    x = "",
+    y = "Temperatura (°C)" 
+  )
+
+graf_mf_pau_temp <- ggplot(mf_paulinia, aes(x = DATA, y = MEDIA_TEMP)) +
+  geom_line(aes(color = MEDIA_TEMP_imp, group = 1), linewidth = 0.6) +
+  scale_color_manual(
+    name = "Tipo de Dado",
+    values = c("FALSE" = "#1f77b4", "TRUE" = "#d62728"), 
+    labels = c("Observado", "Imputado")
+  ) +
+  scale_x_date(
+    breaks = seq(as.Date("2021-01-01"), as.Date("2025-12-31"), by = "1 month"),
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 45), breaks = seq(0, 45, by = 5), 
+    expand = c(0,0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5),      
+    plot.subtitle = element_text(hjust = 0.5),   
+    legend.position = "bottom",
+    legend.direction = "horizontal"
+  ) +
+  labs(
+    title = "Série Temporal de Temperatura com dados imputados - Paulínia",
+    subtitle = "Imputação realizada por missForest",
+    x = "",
+    y = "Temperatura (°C)" 
+  )
+
+#Gráficos Umidade
+graf_mf_camp_umid <- ggplot(mf_campinas, aes(x = DATA, y = MEDIA_UMIDADE)) +
+  geom_line(aes(color = MEDIA_UMIDADE_imp, group = 1), linewidth = 0.6) +
+  scale_color_manual(
+    name = "Tipo de Dado",
+    values = c("FALSE" = "#1f77b4", "TRUE" = "#d62728"), 
+    labels = c("Observado", "Imputado")
+  ) +
+  scale_x_date(
+    breaks = seq(as.Date("2021-01-01"), as.Date("2025-12-31"), by = "1 month"),
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 100), breaks = seq(0, 100, by = 10), 
+    expand = c(0, 0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5),      
+    plot.subtitle = element_text(hjust = 0.5),   
+    legend.position = "bottom",
+    legend.direction = "horizontal"
+  ) +
+  labs(
+    title = "Série Temporal de Umidade Relativa com dados imputados - Campinas",
+    subtitle = "Imputação realizada por missForest",
+    x = "",
+    y = "Umidade Relativa (%)" 
+  )
+
+graf_mf_lim_umid <- ggplot(mf_limeira, aes(x = DATA, y = MEDIA_UMIDADE)) +
+  geom_line(aes(color = MEDIA_UMIDADE_imp, group = 1), linewidth = 0.6) +
+  scale_color_manual(
+    name = "Tipo de Dado",
+    values = c("FALSE" = "#1f77b4", "TRUE" = "#d62728"), 
+    labels = c("Observado", "Imputado")
+  ) +
+  scale_x_date(
+    breaks = seq(as.Date("2021-01-01"), as.Date("2025-12-31"), by = "1 month"),
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 100), breaks = seq(0, 100, by = 10), 
+    expand = c(0, 0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5),      
+    plot.subtitle = element_text(hjust = 0.5),   
+    legend.position = "bottom",
+    legend.direction = "horizontal"
+  ) +
+  labs(
+    title = "Série Temporal de Umidade Relativa com dados imputados - Limeira",
+    subtitle = "Imputação realizada por missForest",
+    x = "",
+    y = "Umidade Relativa (%)" 
+  )
+
+graf_mf_pau_umid <- ggplot(mf_paulinia, aes(x = DATA, y = MEDIA_UMIDADE)) +
+  geom_line(aes(color = MEDIA_UMIDADE_imp, group = 1), linewidth = 0.6) +
+  scale_color_manual(
+    name = "Tipo de Dado",
+    values = c("FALSE" = "#1f77b4", "TRUE" = "#d62728"), 
+    labels = c("Observado", "Imputado")
+  ) +
+  scale_x_date(
+    breaks = seq(as.Date("2021-01-01"), as.Date("2025-12-31"), by = "1 month"),
+    date_labels = "%m/%Y"
+  ) +
+  scale_y_continuous(
+    limits = c(0, 100), breaks = seq(0, 100, by = 10), 
+    expand = c(0, 0)
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+    plot.title = element_text(hjust = 0.5),      
+    plot.subtitle = element_text(hjust = 0.5),   
+    legend.position = "bottom",
+    legend.direction = "horizontal"
+  ) +
+  labs(
+    title = "Série Temporal de Umidade Relativa com dados imputados - Paulínia",
+    subtitle = "Imputação realizada por missForest",
+    x = "",
+    y = "Umidade Relativa (%)" 
+  )
+
+#Gráficos de Série e de Internações
+inter_camp <- readRDS("dados_SIH/Cidades/internacoes_Campinas.rds")
+inter_lim <- readRDS("dados_SIH/Cidades/internacoes_Limeira.rds")
+inter_pau <- readRDS("dados_SIH/Cidades/internacoes_Paulinia.rds")
+
+df_camp <- data.frame(
+  ano = mf_campinas$DATA,
+  mp = mf_campinas$MEDIA_MP25,
+  internacoes = inter_camp$TOTAL_INTER
+)
+
+df_lim <- data.frame(
+  ano = mf_limeira$DATA,
+  mp = mf_limeira$MEDIA_MP25,
+  internacoes = inter_lim$TOTAL_INTER
+)
+
+df_pau <- data.frame(
+  ano = mf_paulinia$DATA,
+  mp = mf_paulinia$MEDIA_MP25,
+  internacoes = inter_pau$TOTAL_INTER
+)
+
+cria_grafico_coluna_linha <- function(df, cidade) {
+  
+  # Cálculo automático do fator de escala para o duplo eixo Y
+  max_mp <- max(df$mp, na.rm = TRUE)
+  max_inter <- max(df$internacoes, na.rm = TRUE)
+  fator_escala <- max_mp / max_inter
+  
+  p <- ggplot(data = df, aes(x = ano)) +
+    
+    geom_col(aes(y = internacoes * fator_escala, fill = "Internações"), width = 0.8, alpha = 0.5) +
+    geom_line(aes(y = mp, color = "MP2,5"), linewidth = 0.6) +
+    
+    scale_fill_manual(
+      name = "",
+      values = c("Internações" = "#2ca02c") # Verde translúcido para as colunas
+    ) +
+    scale_color_manual(
+      name = "",
+      values = c("MP2,5" = "#1f77b4") # Azul para a linha de poluição
+    ) +
+    
+    scale_x_date(
+      breaks = seq(as.Date("2021-01-01"), as.Date("2025-12-31"), by = "1 month"),
+      date_labels = "%m/%Y"
+    ) +
+    scale_y_continuous(
+      name = expression(paste("Concentração de MP"[2.5], " (", mu, "g/m"^3, ")")),
+      sec.axis = sec_axis(~ . / fator_escala, name = "Número de Internações"),
+      expand = c(0, 0)
+    ) +
+    
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 8),
+      plot.title = element_text(hjust = 0.5),      
+      plot.subtitle = element_text(hjust = 0.5),   
+      legend.position = "bottom",
+      legend.direction = "horizontal",
+      axis.title.y.left  = element_text(color = "#1f77b4"),
+      axis.title.y.right = element_text(color = "#2ca02c")
+    ) +
+    
+    labs(
+      title = paste0("Série Temporal: MP2,5 e Internações Respiratórias - ", cidade),
+      subtitle = "Comparação epidemiológica ambiental (2021–2025)",
+      x = ""
+    )
+  
+  return(p)
+}
+
+graf_camp_mp_inter <- cria_grafico_coluna_linha(df_camp, "Campinas")
+graf_lim_mp_inter <- cria_grafico_coluna_linha(df_lim, "Limeira")
+graf_pau_mp_inter <- cria_grafico_coluna_linha(df_pau, "Paulínia")
