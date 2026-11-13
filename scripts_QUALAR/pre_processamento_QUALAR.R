@@ -539,9 +539,13 @@ imputa_MP25_mf <- function(base){
   
   #Coluna indicando se houve imputação (TRUE) ou não (FALSE)
   base$MEDIA_MP25_imp <- is.na(base$MEDIA_MP25)  
+  base$MEDIA_UMIDADE_imp <- is.na(base$MEDIA_UMIDADE)  
+  base$MEDIA_TEMP_imp <- is.na(base$MEDIA_TEMP)  
   
-  #Pega apenas os dados imputados de média do MP2,5
+  #Pega apenas os dados imputados de média do MP2,5, umidade relativa e temperatura
   base$MEDIA_MP25 <- resultado_mf$ximp$MEDIA_MP25
+  base$MEDIA_UMIDADE <- resultado_mf$ximp$MEDIA_UMIDADE
+  base$MEDIA_TEMP <- resultado_mf$ximp$MEDIA_TEMP
   
   base$DATA <- datas_originais #Restaura a data para o formato original
   base$HORAS_MONIT_MP25 <- horas_mp25
@@ -552,7 +556,7 @@ imputa_MP25_mf <- function(base){
   
   base <- base|>
     select(-MES, -DIA_SEMANA)|>
-    relocate(DATA, MEDIA_MP25, MEDIA_TEMP, MEDIA_UMIDADE, HORAS_MONIT_MP25, HORAS_MONIT_TEMP, HORAS_MONIT_UMIDADE, MEDIA_MP25_imp)
+    relocate(DATA, MEDIA_MP25, MEDIA_TEMP, MEDIA_UMIDADE, HORAS_MONIT_MP25, HORAS_MONIT_TEMP, HORAS_MONIT_UMIDADE, MEDIA_MP25_imp, MEDIA_UMIDADE_imp, MEDIA_TEMP_imp)
   
   return(as_tibble(base))
 }
