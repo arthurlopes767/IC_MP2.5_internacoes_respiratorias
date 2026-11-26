@@ -334,25 +334,38 @@ estatisticas <- function(df, cidade, impute){
   dp_ur <- sd(df$MEDIA_UMIDADE, na.rm = TRUE)
   var_ur <- var(df$MEDIA_UMIDADE, na.rm = TRUE)
   
+  dia_maior_concentracao <- df |>
+    slice_max(order_by = MEDIA_MP25, n = 1) |>
+    pull(DATA)
+  
+  contagem_dias_acima_mp_conama <- sum(df$MEDIA_MP25 > 17, na.rm = TRUE)
+  contagem_dias_acima_mp_oms <- sum(df$MEDIA_MP25 > 15, na.rm = TRUE)
+  
   cat(
-    "\nMaterial Particulado 2,5 (μg/m³)\n",
-    "Média:", media_mp, "| Mediana:", median_mp,
-    "| Mínimo:", min_mp, "| Máximo:", max_mp,
-    "| Variância:", var_mp, "| Desvio Padrão:", dp_mp, "\n"
+    "\nMaterial Particulado 2,5 (μg/m³)",
+    "\nMédia:", media_mp, "\nMediana:", median_mp,
+    "\nMínimo:", min_mp, "\nMáximo:", max_mp,
+    "\nVariância:", var_mp, "\nDesvio Padrão:", dp_mp, "\n\n"
   )
   
   cat(
-    "Temperatura (°C)\n",
-    "Média:", media_temp, "| Mediana:", median_temp,
-    "| Mínimo:", min_temp, "| Máximo:", max_temp,
-    "| Variância:", var_temp, "| Desvio Padrão:", dp_temp, "\n"
+    "Temperatura (°C)",
+    "\nMédia:", media_temp, "\nMediana:", median_temp,
+    "\nMínimo:", min_temp, "\nMáximo:", max_temp,
+    "\nVariância:", var_temp, "\nDesvio Padrão:", dp_temp, "\n\n"
   )
   
   cat(
-    "Umidade Relativa (%)\n",
-    "Média:", media_ur, "| Mediana:", median_ur,
-    "| Mínimo:", min_ur, "| Máximo:", max_ur,
-    "| Variância:", var_ur, "| Desvio Padrão:", dp_ur, "\n"
+    "Umidade Relativa (%)",
+    "\nMédia:", media_ur, "\nMediana:", median_ur,
+    "\nMínimo:", min_ur, "\nMáximo:", max_ur,
+    "\nVariância:", var_ur, "\nDesvio Padrão:", dp_ur, "\n\n"
+  )
+  
+  cat(
+    "Dia com maior concentração de MP2,5: ", format(dia_maior_concentracao, "%d/%m/%Y"), 
+    "\nDias com concentração acima das diretrizes do CONAMA n°506/2024 (17 µg/m³):", as.character(contagem_dias_acima_mp_conama),
+    "\nDias com concentração acima das diretrizes da OMS (15 µg/m³)", as.character(contagem_dias_acima_mp_oms), "\n\n"
   )
   
   ano_min <- as.Date("2021-01-01")
@@ -383,28 +396,41 @@ estatisticas <- function(df, cidade, impute){
     dp_ur <- sd(df_ano$MEDIA_UMIDADE, na.rm = TRUE)
     var_ur <- var(df_ano$MEDIA_UMIDADE, na.rm = TRUE)
     
+    dia_maior_concentracao_ano <- df_ano |>
+      slice_max(order_by = MEDIA_MP25, n = 1) |>
+      pull(DATA)
+    
+    contagem_dias_acima_mp_conama_ano <- sum(df_ano$MEDIA_MP25 > 17, na.rm = TRUE)
+    contagem_dias_acima_mp_oms_ano <- sum(df_ano$MEDIA_MP25 > 15, na.rm = TRUE)
+    
     ano_atual <- format(ano_min, "%Y")
     
     cat(
       "\n--- Ano:", ano_atual, "---\n",
-      "Material Particulado 2,5 (μg/m³)\n",
-      "Média:", media_mp, "| Mediana:", median_mp,
-      "| Mínimo:", min_mp, "| Máximo:", max_mp,
-      "| Variância:", var_mp, "| Desvio Padrão:", dp_mp, "\n"
+      "Material Particulado 2,5 (μg/m³)",
+      "\nMédia:", media_mp, "\nMediana:", median_mp,
+      "\nMínimo:", min_mp, "\nMáximo:", max_mp,
+      "\nVariância:", var_mp, "\nDesvio Padrão:", dp_mp, "\n\n"
     )
     
     cat(
-      "Temperatura (°C)\n",
-      "Média:", media_temp, "| Mediana:", median_temp,
-      "| Mínimo:", min_temp, "| Máximo:", max_temp,
-      "| Variância:", var_temp, "| Desvio Padrão:", dp_temp, "\n"
+      "Temperatura (°C)",
+      "\nMédia:", media_temp, "\nMediana:", median_temp,
+      "\nMínimo:", min_temp, "\nMáximo:", max_temp,
+      "\nVariância:", var_temp, "\nDesvio Padrão:", dp_temp, "\n\n"
     )
     
     cat(
-      "Umidade Relativa (%)\n",
-      "Média:", media_ur, "| Mediana:", median_ur,
-      "| Mínimo:", min_ur, "| Máximo:", max_ur,
-      "| Variância:", var_ur, "| Desvio Padrão:", dp_ur, "\n"
+      "Umidade Relativa (%)",
+      "\nMédia:", media_ur, "\nMediana:", median_ur,
+      "\nMínimo:", min_ur, "\nMáximo:", max_ur,
+      "\nVariância:", var_ur, "\nDesvio Padrão:", dp_ur, "\n\n"
+    )
+    
+    cat(
+      "Dia com maior concentração de MP2,5: ", format(dia_maior_concentracao_ano, "%d/%m/%Y"), 
+      "\nDias com concentração acima das diretrizes do CONAMA n°506/2024 (17 µg/m³):", as.character(contagem_dias_acima_mp_conama_ano),
+      "\nDias com concentração acima das diretrizes da OMS (15 µg/m³)", as.character(contagem_dias_acima_mp_oms_ano), "\n\n"
     )
     
     ano_min <- ano_min + years(1)
