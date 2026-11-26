@@ -305,6 +305,33 @@ boxplot_paulinia_mp_si <- gera_boxplot_qualar(paulinia_qualar_sem_proces, MEDIA_
 boxplot_paulinia_temp_si <- gera_boxplot_qualar(paulinia_qualar_sem_proces, MEDIA_TEMP,"Temperatura (°C)")
 boxplot_paulinia_ur_si <- gera_boxplot_qualar(paulinia_qualar_sem_proces, MEDIA_UMIDADE,"Umidade Relativa (%)")
 
+#BOXPLOT internações
+campinas_internacoes <- readRDS("dados_SIH/Cidades/internacoes_Campinas.rds")
+limeira_internacoes <- readRDS("dados_SIH/Cidades/internacoes_Limeira.rds")
+paulinia_internacoes <- readRDS("dados_SIH/Cidades/internacoes_Paulinia.rds")
+
+gera_boxplot_inter <- function(df) {
+  ggplot(df, aes(x = format(DT_INTER, "%Y"), y = TOTAL_INTER, fill = format(DT_INTER, "%Y"))) +
+    stat_boxplot(geom = "errorbar", width = 0.25) +
+    geom_boxplot(color = "black", outlier.shape = 1, outlier.size = 2) +
+    scale_fill_brewer(palette = "Pastel1") + 
+    labs(
+      x = "Ano",
+      y = "Internações"
+    ) +
+    theme_bw() +
+    theme(
+      panel.grid = element_blank(),
+      legend.position = "none",
+      axis.text = element_text(color = "black", size = 10),
+      axis.title = element_text(color = "black", size = 11)
+    )
+}
+
+boxplot_inter_camp <- gera_boxplot_inter(campinas_internacoes)
+boxplot_inter_lim <- gera_boxplot_inter(limeira_internacoes)
+boxplot_inter_paul <- gera_boxplot_inter(paulinia_internacoes)
+
 #Estatísticas
 estatisticas <- function(df, cidade, impute){
   cat("Cidade:", cidade, "(Todos os anos)\n")
@@ -447,3 +474,174 @@ estatisticas(limeira_qualar_sem_proces, "Limeira", 0)
 estatisticas(paulinia_qualar, "Paulínia", 1)
 estatisticas(paulinia_qualar_sem_proces, "Paulínia", 0)
 
+#Estatísticas Internações
+estatisticas_internacoes <- function(df, cidade){
+  cat("Cidade:", cidade, "(Todos os anos)\n")
+  
+  media_int <- mean(df$TOTAL_INTER, na.rm = TRUE)
+  median_int <- median(df$TOTAL_INTER, na.rm = TRUE)
+  max_int <- max(df$TOTAL_INTER, na.rm = TRUE)
+  dp_int <- sd(df$TOTAL_INTER, na.rm = TRUE)
+  var_int <- var(df$TOTAL_INTER, na.rm = TRUE)
+  
+  media_int_criancas <- mean(df$INTER_ZERO_A_CINCO_ANOS, na.rm = TRUE)
+  median_int_criancas <- median(df$INTER_ZERO_A_CINCO_ANOS, na.rm = TRUE)
+  max_int_criancas <- max(df$INTER_ZERO_A_CINCO_ANOS, na.rm = TRUE)
+  dp_int_criancas <- sd(df$INTER_ZERO_A_CINCO_ANOS, na.rm = TRUE)
+  var_int_criancas <- var(df$INTER_ZERO_A_CINCO_ANOS, na.rm = TRUE)
+  
+  media_int_idosos <- mean(df$INTER_MAIOR_IGUAL_SESSENTA_ANOS, na.rm = TRUE)
+  median_int_idosos <- median(df$INTER_MAIOR_IGUAL_SESSENTA_ANOS, na.rm = TRUE)
+  max_int_idosos <- max(df$INTER_MAIOR_IGUAL_SESSENTA_ANOS, na.rm = TRUE)
+  dp_int_idosos <- sd(df$INTER_MAIOR_IGUAL_SESSENTA_ANOS, na.rm = TRUE)
+  var_int_idosos <- var(df$INTER_MAIOR_IGUAL_SESSENTA_ANOS, na.rm = TRUE)
+  
+  dia_maior_inter <- df |>
+    slice_max(order_by = TOTAL_INTER, n = 1) |>
+    pull(DT_INTER)
+  
+  cat(
+    "\nInternações Totais",
+    "\nMédia:", media_int, "\nMediana:", median_int,
+    "\nMáximo:", max_int,
+    "\nVariância:", var_int, "\nDesvio Padrão:", dp_int, "\n\n"
+  )
+  
+  cat(
+    "Dia com mais internações: ", format(dia_maior_inter, "%d/%m/%Y"), "\n" 
+  )
+  
+  
+  cat(
+    "\nInternações de 0 a 5 anos",
+    "\nMédia:", media_int_criancas, "\nMediana:", median_int_criancas,
+    "\nMáximo:", max_int_criancas,
+    "\nVariância:", var_int_criancas, "\nDesvio Padrão:", dp_int_criancas, "\n\n"
+  )
+  
+  cat(
+    "\nInternações de idosos (>60 anos)",
+    "\nMédia:", media_int_idosos, "\nMediana:", median_int_idosos,
+    "\nMáximo:", max_int_idosos,
+    "\nVariância:", var_int_idosos, "\nDesvio Padrão:", dp_int_idosos, "\n\n"
+  )
+  
+  ano_min <- as.Date("2021-01-01")
+  ano_max <- as.Date("2021-12-31")
+  
+  while(ano_min <= as.Date("2025-01-01") & ano_max <= as.Date("2025-12-31")){
+    df_ano <- df |> 
+      filter(DT_INTER >= ano_min, DT_INTER <= ano_max)
+    
+    media_int <- mean(df_ano$TOTAL_INTER, na.rm = TRUE)
+    median_int <- median(df_ano$TOTAL_INTER, na.rm = TRUE)
+    max_int <- max(df_ano$TOTAL_INTER, na.rm = TRUE)
+    dp_int <- sd(df_ano$TOTAL_INTER, na.rm = TRUE)
+    var_int <- var(df_ano$TOTAL_INTER, na.rm = TRUE)
+    
+    media_int_criancas <- mean(df_ano$INTER_ZERO_A_CINCO_ANOS, na.rm = TRUE)
+    median_int_criancas <- median(df_ano$INTER_ZERO_A_CINCO_ANOS, na.rm = TRUE)
+    max_int_criancas <- max(df_ano$INTER_ZERO_A_CINCO_ANOS, na.rm = TRUE)
+    dp_int_criancas <- sd(df_ano$INTER_ZERO_A_CINCO_ANOS, na.rm = TRUE)
+    var_int_criancas <- var(df_ano$INTER_ZERO_A_CINCO_ANOS, na.rm = TRUE)
+    
+    media_int_idosos <- mean(df_ano$INTER_MAIOR_IGUAL_SESSENTA_ANOS, na.rm = TRUE)
+    median_int_idosos <- median(df_ano$INTER_MAIOR_IGUAL_SESSENTA_ANOS, na.rm = TRUE)
+    max_int_idosos <- max(df_ano$INTER_MAIOR_IGUAL_SESSENTA_ANOS, na.rm = TRUE)
+    dp_int_idosos <- sd(df_ano$INTER_MAIOR_IGUAL_SESSENTA_ANOS, na.rm = TRUE)
+    var_int_idosos <- var(df_ano$INTER_MAIOR_IGUAL_SESSENTA_ANOS, na.rm = TRUE)
+    
+    dia_maior_inter <- df_ano |>
+      slice_max(order_by = TOTAL_INTER, n = 1) |>
+      pull(DT_INTER)
+    
+    ano_atual <- format(ano_min, "%Y")
+    
+    cat(
+      "\n--- Ano:", ano_atual, "---\n",
+      "\nInternações Totais",
+      "\nMédia:", media_int, "\nMediana:", median_int,
+      "\nMáximo:", max_int,
+      "\nVariância:", var_int, "\nDesvio Padrão:", dp_int, "\n\n"
+    )
+    
+    cat(
+      "\nInternações de 0 a 5 anos",
+      "\nMédia:", media_int_criancas, "\nMediana:", median_int_criancas,
+      "\nMáximo:", max_int_criancas,
+      "\nVariância:", var_int_criancas, "\nDesvio Padrão:", dp_int_criancas, "\n\n"
+    )
+    
+    cat(
+      "\nInternações de idosos (>60 anos)",
+      "\nMédia:", media_int_idosos, "\nMediana:", median_int_idosos,
+      "\nMáximo:", max_int_idosos,
+      "\nVariância:", var_int_idosos, "\nDesvio Padrão:", dp_int_idosos, "\n\n"
+    )
+    
+    cat(
+      "Dia com mais internações: ", format(dia_maior_inter, "%d/%m/%Y"), "\n\n" 
+    )
+    
+    ano_min <- ano_min + years(1)
+    ano_max <- ano_max + years(1)
+  }
+}
+
+estatisticas_internacoes(campinas_internacoes, "Campinas")
+estatisticas_internacoes(limeira_internacoes, "Limeira")
+estatisticas_internacoes(paulinia_internacoes, "Paulínia")
+
+
+#Gráfico de Barras internações
+gera_graf_pizza <- function(df, cidade) {
+  tot_0_5  <- sum(df$INTER_ZERO_A_CINCO_ANOS, na.rm = TRUE)
+  tot_60   <- sum(df$INTER_MAIOR_IGUAL_SESSENTA_ANOS, na.rm = TRUE)
+  tot_6_59 <- sum(pmax(df$TOTAL_INTER - df$INTER_ZERO_A_CINCO_ANOS - df$INTER_MAIOR_IGUAL_SESSENTA_ANOS, 0), na.rm = TRUE)
+  
+  pizza_df <- data.frame(
+    Faixa = factor(
+      c("0 a 5 anos", "6 a 59 anos", "60 anos ou mais"),
+      levels = c("0 a 5 anos", "6 a 59 anos", "60 anos ou mais")
+    ),
+    Valor = c(tot_0_5, tot_6_59, tot_60)
+  )
+  
+  pizza_df$Pct <- round(100 * pizza_df$Valor / sum(pizza_df$Valor), 1)
+  pizza_df$Rotulo <- paste0(pizza_df$Pct, "%\n(", pizza_df$Valor, ")")
+  
+  subtitulo <- if (cidade != "") paste("Município:", cidade) else NULL
+  
+  ggplot(pizza_df, aes(x = "", y = Valor, fill = Faixa)) +
+    geom_bar(stat = "identity", width = 1, color = "white") +
+    coord_polar(theta = "y") +
+    geom_text(
+      aes(label = Rotulo),
+      position = position_stack(vjust = 0.5),
+      color = "white",
+      size = 3.2
+    ) +
+    scale_fill_manual(
+      name = "Faixa etária:",
+      values = c(
+        "0 a 5 anos" = "#d62728",
+        "6 a 59 anos" = "#1f77b4",
+        "60 anos ou mais" = "#2ca02c"
+      )
+    ) +
+    theme_void() +
+    theme(
+      plot.title = element_text(hjust = 0.5),
+      plot.subtitle = element_text(hjust = 0.5),
+      legend.position = "bottom",
+      legend.direction = "horizontal"
+    ) +
+    labs(
+      title = "Internações por Faixa Etária",
+      subtitle = subtitulo
+    )
+}
+
+pizza_camp <- gera_graf_pizza(campinas_internacoes, "Campinas")
+pizza_lim <- gera_graf_pizza(limeira_internacoes, "Limeira")
+pizza_paul <- gera_graf_pizza(paulinia_internacoes, "Paulínia")
